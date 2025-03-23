@@ -7,6 +7,7 @@ pipeline/src/kafka_data/dynamic_aton.json
 pipeline/src/kafka_data/dynamic_sar.json
 pipeline/src/kafka_data/dynamic_vessel.json
 pipeline/src/kafka_data/dynamic_voyage.json
+.idea
 
 worklog.md
 
