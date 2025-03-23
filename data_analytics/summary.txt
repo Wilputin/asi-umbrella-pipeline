@@ -1,0 +1,60 @@
+----------------------------------------------
+processing data for nari_dynamic.csv
+data size: 1098174.0224609375 KB
+data size: 1072.4355688095093 MB
+number of unique vessel ids:  5055
+min time:  2015-10-01 01:00:01
+max time:  2016-04-01 00:59:59
+data is between time 182 days, 23:59:58
+num of datapoints 19035630
+max vessel frequency 14828674.0 sec
+max vessel frequency 247144.56666666668 min
+max vessel frequency 4119.0761111111115 hr
+max vessel frequency 171.6281712962963 days
+average vessel frequency 119307.31417523508 sec
+average vessel frequency 1988.455236253918 min
+average vessel frequency 33.140920604231965 hr
+average vessel frequency 1.3808716918429986 days
+expecting  131.80080457518199 messages for single vessel between 182 days
+expecting  666253.0671275449 messages for ALL vessels between 182 days
+expecting  25.4217440143294 messages for ALL vessels between 10 minute
+----------------------------------------------
+processing data for nari_dynamic_aton.csv
+data size: 30043.974609375 KB
+data size: 29.339818954467773 MB
+number of unique vessel ids:  54
+min time:  2015-10-01 01:00:15
+max time:  2016-04-01 00:57:31
+data is between time 182 days, 23:57:16
+num of datapoints 505717
+max vessel frequency 6562698.0 sec
+max vessel frequency 109378.3 min
+max vessel frequency 1822.9716666666668 hr
+max vessel frequency 75.95715277777778 days
+average vessel frequency 246194.8086344971 sec
+average vessel frequency 4103.246810574952 min
+average vessel frequency 68.38744684291586 hr
+average vessel frequency 2.849476951788161 days
+expecting  63.87137116016598 messages for single vessel between 182 days
+expecting  3449.054042648963 messages for ALL vessels between 182 days
+expecting  0.1316030999179244 messages for ALL vessels between 10 minute
+----------------------------------------------
+processing data for nari_dynamic_sar.csv
+data size: 220.4794921875 KB
+data size: 0.21531200408935547 MB
+number of unique vessel ids:  10
+min time:  2015-10-01 11:33:46
+max time:  2016-03-31 19:53:55
+data is between time 182 days, 8:20:09
+num of datapoints 4566
+max vessel frequency 224.5 sec
+max vessel frequency 3.7416666666666667 min
+max vessel frequency 0.06236111111111111 hr
+max vessel frequency 0.0025983796296296297 days
+average vessel frequency 59.25310157264779 sec
+average vessel frequency 0.9875516928774632 min
+average vessel frequency 0.016459194881291054 hr
+average vessel frequency 0.0006857997867204605 days
+expecting  265383.57626259397 messages for single vessel between 182 days
+expecting  2653835.7626259397 messages for ALL vessels between 182 days
+expecting  101.26052207821809 messages for ALL vessels between 10 minute

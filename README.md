@@ -43,6 +43,11 @@ tajuta miten esimerkiksi DbDriverin kyvykkyyksiä laajennetaan helposti. Noh kat
 
 # Miten testata tätä
 
+ENSIKSI: Koska github tappelee filukokojen kanssa valitettavasti tajusin tämän liian myöhään niin en nyt saanut tähän hienostuneempaa ratkaisua
+pahoittelut
+
+INCOMING DESC
+
 toivotaan että tästä ei tule "it works on my machine"
 
 1. projektin juuressa syötä terminaaliin
