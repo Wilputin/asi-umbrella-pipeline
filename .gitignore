@@ -3,6 +3,11 @@ pipeline/src/data/dynamic_aton.csv
 pipeline/src/data/dynamic_sar.csv
 pipeline/src/data/dynamic_vessel.csv
 pipeline/src/data/dynamic_voyage.csv
+pipeline/src/kafka_data/dynamic_aton.json
+pipeline/src/kafka_data/dynamic_sar.json
+pipeline/src/kafka_data/dynamic_vessel.json
+pipeline/src/kafka_data/dynamic_voyage.json
+
 worklog.md
 
 # Alternatively, to ignore all dynamic CSV files in that folder:
