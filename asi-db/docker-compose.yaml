@@ -1,0 +1,17 @@
+networks:
+  asi_network:
+    external: true
+services:
+  db:
+    image: postgres:15.4
+    container_name: "db"
+    environment:
+      POSTGRES_USER: myUser
+      POSTGRES_PASSWORD: myPassword
+      POSTGRES_DB: myDB
+    networks:
+      - asi_network
+    ports:
+      - 3500:5432
+    volumes:
+      - ./schema.sql:/docker-entrypoint-initdb.d/schema.sql
