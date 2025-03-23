@@ -1,0 +1,7 @@
+#PLEASE ADD HERE FOLLOWING CSV FILES FOR THE PIPELINE TO WORK
+
+nari_dynamic.csv
+nari_dynamic_aton.csv
+nari_dynamic_sar.csv
+nari_static.csv
+

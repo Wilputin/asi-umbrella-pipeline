@@ -1,4 +1,10 @@
 # Ignore dynamic CSV files
+data_analytics/data/nari_dynamic_aton.csv
+data_analytics/data/nari_dynamic_sar.csv
+data_analytics/data/nari_dynamic.csv
+data_analytics/data/nari_static.csv
+
+
 pipeline/src/data/dynamic_aton.csv
 pipeline/src/data/dynamic_sar.csv
 pipeline/src/data/dynamic_vessel.csv
