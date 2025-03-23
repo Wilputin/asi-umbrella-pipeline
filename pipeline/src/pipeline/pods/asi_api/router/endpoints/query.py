@@ -6,7 +6,9 @@ router = APIRouter()
 
 @router.get(path="/query_data")
 async def query_data(request: Request, query: ApiQueryModel) -> JSONResponse:
+
     app_state = request.app
+    app_state.state.db_driver.logger.info(f"received query model: {query.model_dump()}")
     result = query.get_query()
     query_statement = result[0]
     params = result[1]

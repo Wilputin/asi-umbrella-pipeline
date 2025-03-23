@@ -62,7 +62,7 @@ toivotaan että tästä ei tule "it works on my machine"
    pipeline/configuration_compose.yaml tiedoston kautta
    
 
-        #MUUTA messa_size kenttää haluaamaasi suuntaan muuttakseksi kafka topicciehin työnnettämän datan määrää
+        #MUUTA messag_size kenttää haluaamaasi suuntaan muuttakseksi kafka topicciehin työnnettämän datan määrää
         - name: data_puller
           active: True
           config:
@@ -71,6 +71,11 @@ toivotaan että tästä ei tule "it works on my machine"
               localhost: False
               compose: True
               use_kafka: True
+        
+        jokaisessa moduulissa on active: bool kenttä
+        jos myöhemmin kun olet ajanut datan sisään DB:sen ja haluat testata pelkästään query
+        rajapintaa niin aseta moduulit (paitsi asi-api) configuraatiossa -> configuration_compose.yaml falseksi
+        ja pystytä pipelin uudestaan. Näin pelkästään asi-api käynnistyy
 
 2. tämän pitäisi pystyttää järjestyksessä
     - database

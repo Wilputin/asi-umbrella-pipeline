@@ -29,7 +29,6 @@ class SQLQueryBuilder:
         if table_key not in table_meta_info:
             raise ValueError(f"Join table '{table_key}' not defined.")
         table_name = table_meta_info[table_key]["name"]
-
         self.joins.append((join_type.upper(), table_name, on_clause))
         return self
 

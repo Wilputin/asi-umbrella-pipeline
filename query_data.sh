@@ -61,16 +61,38 @@ curl -k -X GET "$URL" \
   -w "\n Status: %{http_code} -> Time Total: %{time_total}s\nDownload Speed: %{speed_download} bytes/sec -> result saved under query_results/\n"
 
 }
+function query_data_4(){
+
+  query_json='{
+  "main_table": "voyage",
+  "where": "dynamic_voyage.shipname LIKE %s",
+  "params": ["%BINDY%"],
+  "limit": 10
+}'
+
+URL="http://localhost:5000/query_data"
+
+curl -k -X GET "$URL" \
+  -H "Content-Type: application/json" \
+  -d "$query_json" \
+  -o query_results/query_result_4.txt \
+  -w "\n Status: %{http_code} -> Time Total: %{time_total}s\nDownload Speed: %{speed_download} bytes/sec -> result saved under query_results/\n"
+
+}
 
 
 echo "starting new query"
 query_data_1
 echo "/n"
 echo "-------------------------------------"
-echo "starting new query"
+echo "starting new query trying to find by time range"
 query_data_2
 echo "/n"
 echo "-------------------------------------"
-echo "starting new query"
+echo "starting new query trying to find by country code"
 query_data_3
+echo "/n"
+echo "-------------------------------------"
+echo "starting new query trying to find by shipname"
+query_data_4
 
