@@ -42,7 +42,6 @@ COPY --from=builder-base app/.venv app/.venv
 ENV PYTHONOPTIMIZE=2
 COPY --from=builder-base app/src app/src
 ENV PATH="/app/.venv/bin:$PATH"
-
 WORKDIR app/src
 ENTRYPOINT ["python","-m", "pipeline"]
 

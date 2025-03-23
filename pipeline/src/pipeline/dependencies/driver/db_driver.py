@@ -42,7 +42,7 @@ class DbDriver:
             )
 
     async def insert_streaming_data(
-            self, table_name: str, data: list[tuple], batch_size: int = 500
+            self, table_name: str, data: list[tuple], batch_size: int = 5000,
     ):
         total_rows = len(data)
         query_statement = dynamic_data_statements[table_name]
@@ -69,11 +69,9 @@ class DbDriver:
                 print(f"Pipeline aborted: {e}")
                 if conn:
                     await conn.rollback()
-
-            else:
-                self.logger.info(
-                    f"Inserted {len(batched)} rows to {table_name} between: {min_time} -> {max_time}"
-                )
+            self.logger.info(
+                f"Inserted {len(batched)} rows to {table_name} between: {min_time} -> {max_time}"
+            )
 
     async def query_data(self, query: str, params: list[typing.Any]) -> list[tuple]:
         # query_statement = query.generate_query()

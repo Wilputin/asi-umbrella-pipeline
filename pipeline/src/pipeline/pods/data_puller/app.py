@@ -40,7 +40,7 @@ class DataPuller(BaseApp):
     loop: asyncio.AbstractEventLoop
     tpe: concurrent.futures.ThreadPoolExecutor
     producer: Producer | None = None
-    root_repo_dir = pathlib.Path(__file__).parents[3]
+    root_repo_dir = pathlib.Path(__file__).parents[4]
     data_source: pathlib.Path = root_repo_dir / "./data"
     data_destination: pathlib.Path = root_repo_dir / "./kafka_data"
     admin: AdminClient | None = None
@@ -137,7 +137,7 @@ class DataPuller(BaseApp):
             return
         self.logger.info(f"starting data dump to topic {data}")
         if self.connection_config.message_size:
-            self.logger.info(f"task is capping messages to maximum of {self.connection_config.message_size}% of the maximum")
+            self.logger.info(f"task is capping messages to maximum of {self.connection_config.message_size*100}% of the maximum")
         index = 0
         total_size = len(df)
         flush_interval = int(len(df)*0.3)
@@ -174,6 +174,7 @@ class DataPuller(BaseApp):
 
     async def processing_pipeline(self, data: str) -> pd.DataFrame:
         filepath = self.data_source / f"{data}.csv"
+        self.logger.info("trying to read csv from filepath %s", filepath)
         df = pd.read_csv(filepath, low_memory=False)
         if "ts" in df.columns:
             df.rename(columns={"ts": "t"}, inplace=True)

@@ -1,0 +1,6 @@
+#PLEASE ADD HERE FOLLOWING CSV FILES FOR THE PIPELINE TO WORK
+
+nari_dynamic.csv (CHANGE NAME TO FOLLOWING) -> dynamic_vessel.csv
+nari_dynamic_aton.csv (CHANGE NAME TO FOLLOWING) -> dynamic_aton.csv
+nari_dynamic_sar.csv (CHANGE NAME TO FOLLOWING) -> dynamic_sar.csv
+nari_static.csv (CHANGE NAME TO FOLLOWING) -> dynamic_voyage.csv

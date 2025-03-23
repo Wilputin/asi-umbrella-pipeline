@@ -29,7 +29,7 @@ class AppState(BaseModel):
 
 class MetaIngestion(BaseApp):
     state: AppState
-    root_repo_dir = pathlib.Path(__file__).parents[3]
+    root_repo_dir = pathlib.Path(__file__).parents[4]
     metadata_source: pathlib.Path = root_repo_dir / "./metadata"
     metadata_files: list[str] = [
         "aton",
@@ -103,6 +103,7 @@ class MetaIngestion(BaseApp):
         for config in self.meta_config:
             metadata = MetaData()
             filepath = self.metadata_source / f"{config.table}{file_type}"
+            self.logger.info(f"ingesting meta from source: {filepath}" )
             delimiter = self.get_delimiter_by_table(config.table)
             headers = self.get_headers_by_table(config.table)
             headers = "infer" if headers else None

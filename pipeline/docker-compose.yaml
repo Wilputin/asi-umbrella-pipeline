@@ -3,8 +3,8 @@ services:
   pipeline:
     build: .
     volumes:
-      - ./data:/app/data
-      - ./metadata:/app/metadata
+      - ./data:/app/data/
+      - ./metadata:/app/metadata/
       - ./configuration_compose.yaml:/app/configuration.yaml
     networks:
       - asi_network

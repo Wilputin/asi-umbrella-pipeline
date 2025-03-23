@@ -177,7 +177,7 @@ should writen in realtime
 
  */
  
-CREATE TABLE dynamic_vessel(timestamp TIMESTAMP NOT NULL,mmsi INTEGER,navigational_status INT REFERENCES navigational_status(status) ON UPDATE CASCADE , rateofturn FLOAT, speedoverground FLOAT, courseoverground FLOAT, trueheading FLOAT, lon FLOAT, lat FLOAT,country_code INT, PRIMARY KEY (timestamp, mmsi));
+CREATE TABLE dynamic_vessel(timestamp TIMESTAMP NOT NULL,mmsi INTEGER,navigational_status INT REFERENCES navigational_status(status) ON UPDATE CASCADE , rateofturn FLOAT, speedoverground FLOAT, courseoverground FLOAT, trueheading FLOAT, lon FLOAT, lat FLOAT,country_code INT);
  
  
  

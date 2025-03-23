@@ -3,6 +3,8 @@ from pipeline.dependencies.driver.query_builder import SQLQueryBuilder
 from pydantic import BaseModel
 class ApiQueryModel(BaseModel):
     main_table: str
+    select: str
+    join: str
     where: str
     params: tuple
     order_by: str

@@ -29,7 +29,7 @@ class DataWriter(BaseApp):
     admin: AdminClient
     message_queues: dict[str, asyncio.Queue]
     consumers: dict[str, Consumer] | None = None
-    root_repo_dir = pathlib.Path(__file__).parents[3]
+    root_repo_dir = pathlib.Path(__file__).parents[4]
     data_source: pathlib.Path = root_repo_dir / "./kafka_data"
     message_map: MessageTypeMap
 
@@ -90,6 +90,7 @@ class DataWriter(BaseApp):
                 async for decoded_msg in self.decoder.decode_messages(messages=messages):
                     await self.message_queues[key].put(decoded_msg)
             else:
+                await asyncio.sleep(0.5)
                 max_trials -= 1
         if not received_messages:
             self.logger.warning(f"havent received a single message...Exiting from task for data {topic}")
@@ -115,7 +116,7 @@ class DataWriter(BaseApp):
             json_array = json.load(f)
             return json_array
 
-    async def batch_messages(self, key: str, timeout: float = 1, batch_size: int = 3000):
+    async def batch_messages(self, key: str, timeout: float = 1, batch_size: int = 5000):
         messages: list[tuple] = []
         try:
             await asyncio.sleep(1)
@@ -141,15 +142,16 @@ class DataWriter(BaseApp):
             f"starting task to write data for message type {key} for table {table_name}"
         )
         self.running = True
-        max_trials = 10  # we will wait N number of iterations before killing the task. For proper usage this should be done more gracefully
+        max_trials = 20  # we will wait N number of iterations before killing the task. For proper usage this should be done more gracefully
         while max_trials > 0:
-            messages = await self.batch_messages(key=key)
+            messages = await self.batch_messages(key=key, batch_size=10000)
             table_name = self.message_map.get_table_by_key(key)
             if messages:
                 await self.state.db_driver.insert_streaming_data(
-                    data=messages, table_name=table_name
+                    data=messages, table_name=table_name,batch_size=10000
                 )
             else:
+                await asyncio.sleep(0.5)
                 max_trials -= 1
                 self.logger.info(
                     f"message queue is empty on message key {key} sleeping on task for 1 sec..."
@@ -159,10 +161,10 @@ class DataWriter(BaseApp):
             f"ending task to write data for message type {key} for table {table_name}"
         )
 
-    async def aconsume(self, consumer: Consumer, num_messages: int=5000) -> list[Message]:
+    async def aconsume(self, consumer: Consumer, num_messages: int=10000) -> list[Message]:
         kwargs = {
             "num_messages": num_messages,
-            "timeout": 1,
+            "timeout": 2,
         }
         partial = functools.partial(consumer.consume, **kwargs)
         messages = await self._partial_run(partial)
