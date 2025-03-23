@@ -1,0 +1,25 @@
+# Ignore dynamic CSV files
+pipeline/src/data/dynamic_aton.csv
+pipeline/src/data/dynamic_sar.csv
+pipeline/src/data/dynamic_vessel.csv
+pipeline/src/data/dynamic_voyage.csv
+worklog.md
+
+# Alternatively, to ignore all dynamic CSV files in that folder:
+# pipeline/src/data/dynamic_*.csv
+
+# Python standard ignores
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+*.log
+*.env
+.env
+.venv/
+venv/
+build/
+dist/
+*.egg-info/
+
+
