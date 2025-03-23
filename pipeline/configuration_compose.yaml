@@ -1,0 +1,47 @@
+log_level: info
+modules:
+- name: meta_ingestion
+  active: True
+  config:
+    meta_config:
+      - table: aton
+        delimiter: ";"
+        headers: true
+      - table: mmsi_codes
+        delimiter: ","
+        headers: false
+      - table: navigational_status
+        delimiter: ";"
+        headers: false
+      - table: ship_types
+        delimiter: ","
+        headers: true
+      - table: ship_types_detailed
+        delimiter: ","
+        headers: true
+    connection_config:
+      localhost: False
+      compose: True
+      use_kafka: True
+- name: data_puller
+  active: True
+  config:
+    connection_config:
+      message_size: 0.2 # 1.0 means 100% of data -> 0.5 is 50% etc. relevant only for kafka
+      localhost: False
+      compose: True
+      use_kafka: True
+- name: data_writer
+  active: True
+  config:
+    connection_config:
+      localhost: False
+      compose: True
+      use_kafka: True
+- name: api_app
+  active: True
+  config:
+    connection_config:
+      localhost: False
+      compose: True
+      use_kafka: True

@@ -1,0 +1,10 @@
+#ignore everything and specify what you want in the image
+**
+
+#include top level content of src/
+!src/*
+
+
+#explicitly allow poetry files
+!poetry.lock
+!pyproject.toml

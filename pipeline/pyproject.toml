@@ -1,0 +1,42 @@
+[tool.poetry]
+name = "pipeline"
+version = "0.0.0"
+description = "pod for ingestin metadata to postgres db"
+authors = ["Wille Siren"]
+readme = "README.md"
+packages = [{include = "pipeline", from = "src"}]
+include = ["pipeline/py.typed"]
+
+[tool.poetry.scripts]
+pipeline = "pipeline.__main__:main"
+
+[tool.poetry.dependencies]
+python = ">=3.11,<3.12"
+pydantic = "*"
+pandas = "^2.0"
+orjson = "*"
+pyyaml = "*"
+aiofiles = "*"
+ijson = "*"
+tqdm = "*"
+confluent_kafka = "*"
+fastapi = "*"
+uvicorn = "*"
+psycopg= {extras=["binary"],version="^3.1"}
+psycopg_pool = "3.2.6"
+
+[tool.poetry.group.dev.dependencies]
+mypy = "*"
+black = "*"
+isort = "*"
+flake8 = "*"
+pip-audit = "*"
+
+[tool.flake8]
+ignore = ["E501"]
+
+[tool.mypy]
+# Add src to module resolution path
+mypy_path = "src"
+# Ignore missing stubs for 3rd-party libs like confluent_kafka, pandas, yaml
+ignore_missing_imports = true
