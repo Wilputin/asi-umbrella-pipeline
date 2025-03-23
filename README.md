@@ -43,12 +43,14 @@ tajuta miten esimerkiksi DbDriverin kyvykkyyksiä laajennetaan helposti. Noh kat
 
 # Miten testata tätä
 
-ENSIKSI: Koska github tappelee filukokojen kanssa valitettavasti tajusin tämän liian myöhään niin en nyt saanut tähän hienostuneempaa ratkaisua
-pahoittelut
+    ENSIKSI: Koska github tappelee filukokojen kanssa valitettavasti tajusin tämän liian myöhään niin en nyt saanut tähän hienostuneempaa ratkaisua
+    pahoittelut
+    
+    jos katsotte kansiota polussa
+    
+    /pipeline/data/add_files_here.txt
 
-jos katsotte kansiota polussa
-
-/pipeline/data/add_files_here.txt
+    niin nämä tiedostot tarvitaan sisään että kontit saavat oikeat volyymit prosessoitavaksi
 
 annetaan kuvaus mitkä tiedostot millä nimellä tarvitaan tähän kansioon että pipeline toimii
 
