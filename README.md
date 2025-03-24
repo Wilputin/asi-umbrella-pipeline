@@ -32,14 +32,21 @@ tuosta querybuilderista hieman siistimmä/kyvykkäämän. Noh ensi kerralla sitt
 
 Tarkoituksenani oli aluksi tehdä tämä software engineerin tehtävä. Jota aloitinkin. Tein kansiorakenteet. routerin
 Dockerfilet yms. Sain boilerprate projektin toimimaan kivasti. Mutta 19.3 sain vain ajatuksen että ehkä minun kannattaisi tehdä tämä pipeline projekti ja liittää
-tämä Api applikaatio siihen. En kyllä saisi Api-applikaatiosta valmista, mutta tähtäisin siisteyteen ja maintabilityyn
-koko projektin sisällä. Niin toivottavasti se riittäisi vaikka en pääsisi ihan täydellistä softa arkkitehtuuria tekemään.
+tämä Api applikaatio siihen. Tähtäisin siisteyteen ja maintabilityyn
+koko projektin sisällä. Niin toivottavasti se riittäisi vaikka en pääsisi ihan täydellistä pipelina tekemään.
 
-halusin vain hieman näyttää MYÖS kokemustani pipelinen rakentamisessa. Koin että "pelkästään" (en tarkoita että olisi super helppo) API-applikaation tekeminen
-ei näyttäisi ihan kaikkea.
+Vaikka tähtäsin siisteyteen ja maintanibilityyn niin aikaresursointini epäonnistui pahasti niin koodissa on varmasti itsenä
+toistamista ja huonosti sijoitettuja asioita. Lisä ajan kanssa varmasti olisi nätimpi kokonaisuus. 
+Toivottavasti kumminkin pääpiirteittäin saatte selvää asioista :)
 
-Tähtäsin tässä siisteyteen. hyvään kansiorakenteeseen. Maintanabilityyn ja että joku muukin voisi
-tajuta miten esimerkiksi DbDriverin kyvykkyyksiä laajennetaan helposti. Noh katsotaan mitä mieltä olette
+Vielä lisäksi; koska yksi tehtävä pointti oli tarjota query mahdolllisuus end userille ja mahdollinen laajennus niin
+sen on tarjottu api-rajapinnan kautta.  ./query_data.sh tiedostossa on esimerkki queryta johon voi curlata.
+json payloadi validoinnaan apin puolella pydantic mallilla ja SQLQueryBuilder (pipeline.dependencies.driver.query_builder.py)
+koostaa siita SQL statementin DbDriverille parametrien kanssa.
+
+Mielestäni arkkitehtuuri ratkaisuna suht siisti ja helposti laajennettava. Tietysti curlaajaan täytyy hieman tietää SQL querien syntaxista
+
+Mutta tässä kaikki tällä kertaa! Katsotaan mitä mieltä olette.
 
 # Miten testata tätä
 

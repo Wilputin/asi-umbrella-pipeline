@@ -15,8 +15,6 @@ pipeline/kafka_data/dynamic_vessel.json
 pipeline/kafka_data/dynamic_voyage.json
 .idea
 
-worklog.md
-
 # Alternatively, to ignore all dynamic CSV files in that folder:
 # pipeline/src/data/dynamic_*.csv
 
