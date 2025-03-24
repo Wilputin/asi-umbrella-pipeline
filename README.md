@@ -240,19 +240,6 @@ tähän lisää prosseointia:
         processed_df.reset_index(inplace=True, drop=True)
         return processed_df
 
-# Things to do
-
-dataa pitäisi hieman ymmärtää lisää että mitkä olisivat kaikista järkevimpiä primary keytä 
-taualuhin. Ainakin voyage datassa tulee paljon unique key violationeita. en ole siihen perehtynyt hirveän
-orjallisesti nyt
-
-Voluumien hoito/sijainti. Imagessa taitaa nyt olla sisällä leivottu hieman metadataa yms. Ei hyvä pitäisi ne korjata
-
-Kafka configuraatioiden saaminen configuration.yamliin että niiden kanssa voisi vähän optimoida putken suoritusta
-
-Poistin viimeisinä tekoinan dynamic_voyage taulun primary keyn koska ärsytti ainaiset duplicate hälytykset. En ymmärrä datasta tarpeeksi että kannattaisiko tällä
-olla edes primary keytä. Eli tuleeko samalla sekunnilla samalle vesselille useita voyage viestejä.
-
  
 # Kohti valmista tuotetta
 

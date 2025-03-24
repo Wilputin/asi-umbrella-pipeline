@@ -8,8 +8,6 @@ from pipeline.pods.data_writer.app import DataWriter
 
 
 class TestCase(unittest.IsolatedAsyncioTestCase):
-
-
     async def test_case(self):
         """
         db is expected to have data and container running for this to work
