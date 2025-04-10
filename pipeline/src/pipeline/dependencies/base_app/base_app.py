@@ -3,20 +3,23 @@ import sys
 import traceback
 from abc import abstractmethod
 from uuid import uuid4
+
 from confluent_kafka import Consumer
+
 from pipeline.configuration import Configuration, ConnectionConfig, MetaConfig
 
 COLOR_CODES = {
-    "DEBUG": "\033[94m",     # Blue
-    "INFO": "\033[92m",      # Green
-    "WARNING": "\033[93m",   # Yellow
-    "ERROR": "\033[91m",     # Red
+    "DEBUG": "\033[94m",  # Blue
+    "INFO": "\033[92m",  # Green
+    "WARNING": "\033[93m",  # Yellow
+    "ERROR": "\033[91m",  # Red
     "CRITICAL": "\033[95m",  # Magenta
-    "RESET": "\033[0m"       # Reset to default
+    "RESET": "\033[0m",  # Reset to default
 }
 
 log_format = "[pod:%(name)s]-[time:%(asctime)s]-[level:%(levelname)s]//:%(message)s"
 date_format = "%Y-%m-%d %H:%M:%S"
+
 
 class ColoredFormatter(logging.Formatter):
     def format(self, record):
@@ -24,6 +27,7 @@ class ColoredFormatter(logging.Formatter):
         reset = COLOR_CODES["RESET"]
         record.levelname = f"{log_color}{record.levelname}{reset}"
         return super().format(record)
+
 
 class BaseApp:
     logger: logging.Logger
@@ -35,7 +39,7 @@ class BaseApp:
         std_handler = logging.StreamHandler(sys.stdout)
         std_handler.setLevel(level=logging.DEBUG)
 
-        formatter = ColoredFormatter(log_format,date_format)
+        formatter = ColoredFormatter(log_format, date_format)
         std_handler.setFormatter(formatter)
         logger.addHandler(std_handler)
         self.connection_config = config.connection_config
@@ -65,7 +69,9 @@ class BaseApp:
             return "kafka:29092"
         raise Exception("No Kafka address configured")
 
-    async def gather_consumers(self, topics: list[str], service_name:str) -> dict[str, Consumer]:
+    async def gather_consumers(
+        self, topics: list[str], service_name: str
+    ) -> dict[str, Consumer]:
         consumer_conf = {
             "bootstrap.servers": self.get_kafka_address(),
             "group.id": f"{service_name}-{uuid4()}",

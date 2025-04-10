@@ -8,7 +8,9 @@ class SQLQueryBuilder:
     Query builder works as a interface to API/DbDriver
 
     """
+
     select: str
+
     def __init__(self, table_key: str):
         if table_key not in table_meta_info:
             raise ValueError(f"Table '{table_key}' not defined.")

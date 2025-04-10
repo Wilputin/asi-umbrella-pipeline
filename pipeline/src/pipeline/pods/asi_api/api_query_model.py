@@ -1,15 +1,15 @@
-from pipeline.dependencies.driver.query_builder import SQLQueryBuilder
-
 from pydantic import BaseModel
 
-attribute_list = [
-    "select", "join", "where", "order_by", "limit"
-]
+from pipeline.dependencies.driver.query_builder import SQLQueryBuilder
+
+attribute_list = ["select", "join", "where", "order_by", "limit"]
+
 
 class ApiJoin(BaseModel):
     join_type: str
     table: str
     on_clause: str
+
 
 class ApiQueryModel(BaseModel):
     main_table: str
@@ -30,15 +30,13 @@ class ApiQueryModel(BaseModel):
             if at == "select":
                 qb.select(self.select)
             if at == "join":
-                qb.join(self.join.join_type,self.join.table,self.join.on_clause)
+                qb.join(self.join.join_type, self.join.table, self.join.on_clause)
             if at == "where":
-                qb.where(self.where,(self.params))
+                qb.where(self.where, (self.params))
             if at == "order_by":
                 qb.order_by(self.order_by)
             if at == "limit":
                 qb.limit(self.limit)
 
-        results = (
-            qb.build_query()
-        )
+        results = qb.build_query()
         return results

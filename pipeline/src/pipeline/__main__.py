@@ -5,7 +5,7 @@ import pathlib
 import yaml
 
 from pipeline.configuration import PipelineConfiguration
-from pipeline.pods import DataPuller, DataWriter, MetaIngestion, ApiApp
+from pipeline.pods import ApiApp, DataPuller, DataWriter, MetaIngestion
 
 """
 for demonstration purposes this pipeline is designed as a monolith repo
@@ -20,17 +20,14 @@ pipeline = {
     "meta_ingestion": MetaIngestion,
     "data_puller": DataPuller,
     "data_writer": DataWriter,
-    "api_app": ApiApp
+    "api_app": ApiApp,
 }
 
 root_repo_dir = pathlib.Path(__file__).parents[2]
 config_source: pathlib.Path = root_repo_dir / "./configuration.yaml"
 
-logger_map = {
-    "info": logging.INFO,
-    "debug": logging.DEBUG,
-    "error": logging.ERROR
-}
+logger_map = {"info": logging.INFO, "debug": logging.DEBUG, "error": logging.ERROR}
+
 
 def main():
     asyncio.run(_main())

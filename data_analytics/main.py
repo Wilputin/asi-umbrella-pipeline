@@ -5,11 +5,11 @@ import os
 import sys
 
 def main():
-    data_files = ["nari_dynamic.csv","nari_dynamic_aton.csv","nari_dynamic_sar.csv"]
+    data_files = ["dynamic_vessel.csv","dynamic_aton.csv","dynamic_sar.csv"]
     with open("summary.txt", "w") as f:
         sys.stdout = f
         for file in data_files:
-            if file == "nari_dynamic_sar.csv":
+            if file == "dynamic_sar.csv":
                 timestamp = "ts"
             else:
                 timestamp = "t"

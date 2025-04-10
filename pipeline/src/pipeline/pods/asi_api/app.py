@@ -1,15 +1,17 @@
 from fastapi import FastAPI
+from starlette.datastructures import State
 from uvicorn import Config, Server
 
 from pipeline.dependencies.base_app.base_app import BaseApp
 from pipeline.dependencies.driver.db_driver import DbDriver
 from pipeline.pods.asi_api.router.router import build_main_router
-from pydantic import BaseModel
-from starlette.datastructures import State
-fast_api_config = dict(port=5000,host="0.0.0.0")
+
+fast_api_config = dict(port=5000, host="0.0.0.0")
+
 
 class AppState(State):
     db_driver: DbDriver
+
 
 class ApiApp(BaseApp):
     app: FastAPI

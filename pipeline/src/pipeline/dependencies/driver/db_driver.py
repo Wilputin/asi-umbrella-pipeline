@@ -42,13 +42,16 @@ class DbDriver:
             )
 
     async def insert_streaming_data(
-            self, table_name: str, data: list[tuple], batch_size: int = 5000,
+        self,
+        table_name: str,
+        data: list[tuple],
+        batch_size: int = 5000,
     ):
         total_rows = len(data)
         query_statement = dynamic_data_statements[table_name]
 
         for i in range(0, total_rows, batch_size):
-            batched = data[i: i + batch_size]
+            batched = data[i : i + batch_size]
             min_time = batched[0][0]
             max_time = batched[-1][0]
 

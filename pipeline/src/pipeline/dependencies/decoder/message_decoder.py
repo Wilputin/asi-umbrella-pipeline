@@ -1,5 +1,6 @@
-import typing
 import logging
+import typing
+
 import orjson
 from confluent_kafka import Message
 

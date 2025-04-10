@@ -4,9 +4,8 @@ import concurrent.futures
 import functools
 import json
 import pathlib
-from uuid import uuid4
 
-from confluent_kafka import Consumer, Message, Producer
+from confluent_kafka import Consumer, Message
 from confluent_kafka.admin import AdminClient
 from pydantic import BaseModel, ConfigDict
 
@@ -44,12 +43,15 @@ class DataWriter(BaseApp):
             key: asyncio.Queue() for key in self.message_map.get_message_keys()
         }
         if self.connection_config.use_kafka:
-            self.consumers = await self.gather_consumers(topics=
-                self.message_map.get_message_topics(), service_name=self.logger.name
+            self.consumers = await self.gather_consumers(
+                topics=self.message_map.get_message_topics(),
+                service_name=self.logger.name,
             )
         self.loop = asyncio.get_running_loop()
         self.tpe = concurrent.futures.ThreadPoolExecutor()
-        self.decoder = MessageDecoder(use_kafka=self.connection_config.use_kafka,logger=self.logger)
+        self.decoder = MessageDecoder(
+            use_kafka=self.connection_config.use_kafka, logger=self.logger
+        )
 
     async def run(self):
         tasks = []
@@ -87,16 +89,21 @@ class DataWriter(BaseApp):
             messages = await self.aconsume(consumer)
             if messages:
                 received_messages = True
-                async for decoded_msg in self.decoder.decode_messages(messages=messages):
+                async for decoded_msg in self.decoder.decode_messages(
+                    messages=messages
+                ):
                     await self.message_queues[key].put(decoded_msg)
             else:
                 await asyncio.sleep(0.5)
                 max_trials -= 1
         if not received_messages:
-            self.logger.warning(f"havent received a single message...Exiting from task for data {topic}")
+            self.logger.warning(
+                f"havent received a single message...Exiting from task for data {topic}"
+            )
         else:
-            self.logger.info(f"havent received new messages in a while...Exiting from task for data {topic}")
-
+            self.logger.info(
+                f"havent received new messages in a while...Exiting from task for data {topic}"
+            )
 
     async def gather_data_from_folder(self, topic: str) -> None:
         file_name = f"{topic}.json"
@@ -116,7 +123,9 @@ class DataWriter(BaseApp):
             json_array = json.load(f)
             return json_array
 
-    async def batch_messages(self, key: str, timeout: float = 1, batch_size: int = 5000):
+    async def batch_messages(
+        self, key: str, timeout: float = 1, batch_size: int = 5000
+    ):
         messages: list[tuple] = []
         try:
             await asyncio.sleep(1)
@@ -148,7 +157,7 @@ class DataWriter(BaseApp):
             table_name = self.message_map.get_table_by_key(key)
             if messages:
                 await self.state.db_driver.insert_streaming_data(
-                    data=messages, table_name=table_name,batch_size=10000
+                    data=messages, table_name=table_name, batch_size=10000
                 )
             else:
                 await asyncio.sleep(0.5)
@@ -161,7 +170,9 @@ class DataWriter(BaseApp):
             f"ending task to write data for message type {key} for table {table_name}"
         )
 
-    async def aconsume(self, consumer: Consumer, num_messages: int=10000) -> list[Message]:
+    async def aconsume(
+        self, consumer: Consumer, num_messages: int = 10000
+    ) -> list[Message]:
         kwargs = {
             "num_messages": num_messages,
             "timeout": 2,

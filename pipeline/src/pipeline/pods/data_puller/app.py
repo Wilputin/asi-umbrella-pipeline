@@ -17,6 +17,7 @@ from pipeline.dependencies.decoder.message_map import (MessageTypeMap,
                                                        get_message_type_map)
 from pipeline.dependencies.driver.db_driver import DbDriver
 
+
 class MetaData(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     values: pd.DataFrame | None = None
@@ -71,7 +72,11 @@ class DataPuller(BaseApp):
         )
 
     async def create_topic(self, topic: str) -> None:
-        self.logger.info("creating topic %s and my kafka address is %s", topic, self.get_kafka_address())
+        self.logger.info(
+            "creating topic %s and my kafka address is %s",
+            topic,
+            self.get_kafka_address(),
+        )
         if self.admin is None:
             raise ValueError("kafka admin is not set")
         topics = [NewTopic(topic, num_partitions=3, replication_factor=1)]
@@ -87,7 +92,7 @@ class DataPuller(BaseApp):
             "bootstrap.servers": self.get_kafka_address(),
             "client.id": f"csv-to-kafka-producer-{uuid4()}",
             "batch.num.messages": 1000,
-            "queue.buffering.max.kbytes": (1048576)*2,  # 2gb buffer
+            "queue.buffering.max.kbytes": (1048576) * 2,  # 2gb buffer
         }
 
         self.producer = Producer(conf)
@@ -127,21 +132,25 @@ class DataPuller(BaseApp):
         with open(filepath, "w") as f:
             json.dump(json_values, f, indent=4)
         self.logger.info(f"ending data dump for {data}")
-    async def convert_nan(self,data:dict, target=None) -> dict:
+
+    async def convert_nan(self, data: dict, target=None) -> dict:
         for key, value in data.items():
             if pd.isna(value):
                 data[key] = target
         return data
+
     async def produce_df_to_topic(self, df: pd.DataFrame, data: str) -> None:
         if self.producer is None:
             return
         self.logger.info(f"starting data dump to topic {data}")
         if self.connection_config.message_size:
-            self.logger.info(f"task is capping messages to maximum of {self.connection_config.message_size*100}% of the maximum")
+            self.logger.info(
+                f"task is capping messages to maximum of {self.connection_config.message_size*100}% of the maximum"
+            )
         index = 0
         total_size = len(df)
-        flush_interval = int(len(df)*0.3)
-        poll_interval = int(len(df)*0.01)
+        flush_interval = int(len(df) * 0.3)  # should be coming from the configs
+        poll_interval = int(len(df) * 0.01)
         poll_index = 0
         for idx, row in df.iterrows():
             row_dict = row.to_dict()
@@ -151,7 +160,11 @@ class DataPuller(BaseApp):
             try:
                 self.producer.produce(**kwargs)
             except BufferError as e:
-                msg = "buffer error: {} and as result decreasing polling interval".format(e)
+                msg = (
+                    "buffer error: {} and as result decreasing polling interval".format(
+                        e
+                    )
+                )
                 self.logger.warning(msg)
                 poll_interval = int(poll_interval * 0.5)
                 poll_index = poll_interval
@@ -161,10 +174,15 @@ class DataPuller(BaseApp):
             if self.connection_config.message_size:
                 processed = int(idx) / total_size
                 if processed >= self.connection_config.message_size:
-                    self.logger.info(f"message size exceeded exiting the data dumping task for data {data}")
+                    self.logger.info(
+                        f"message size exceeded exiting the data dumping task for data {data}"
+                    )
                     break
             if int(idx) % flush_interval == 0:
-                self.logger.info("flushing the producer after interval of %s messages", flush_interval)
+                self.logger.info(
+                    "flushing the producer after interval of %s messages",
+                    flush_interval,
+                )
                 await self._partial_run(functools.partial(self.producer.flush, 5))
             index += 1
             poll_index += 1
@@ -173,9 +191,22 @@ class DataPuller(BaseApp):
         self.producer.flush()
 
     async def processing_pipeline(self, data: str) -> pd.DataFrame:
-        filepath = self.data_source / f"{data}.csv"
-        self.logger.info("trying to read csv from filepath %s", filepath)
-        df = pd.read_csv(filepath, low_memory=False)
+        if data != "dynamic_vessel":
+            filepath = self.data_source / f"{data}.parquet"
+            self.logger.info("trying to read csv from filepath %s", filepath)
+            df = pd.read_parquet(filepath, engine="pyarrow")
+            processed_df = self._process_df(df=df, data=data)
+            return processed_df
+        else:
+            total_df = pd.DataFrame()
+            for i in range(10):
+                filepath = self.data_source / f"{data}_part{i+1}.parquet"
+                df = pd.read_parquet(filepath, engine="pyarrow")
+                processed_df = self._process_df(df=df, data=data)
+                total_df = pd.concat([total_df, processed_df])
+            return total_df
+
+    def _process_df(self, df: pd.DataFrame, data: str) -> pd.DataFrame:
         if "ts" in df.columns:
             df.rename(columns={"ts": "t"}, inplace=True)
         df.sort_values(by="t", inplace=True, ascending=True)

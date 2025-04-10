@@ -11,7 +11,7 @@ class ConnectionConfig(BaseModel):
     use_kafka: bool = (
         True  # if False for local testing csv are transformed to json objects to folder src/kafka_data/
     )
-    message_size: float | None = None # only relevant for kafka
+    message_size: float | None = None  # only relevant for kafka
 
 
 class MetaConfig(BaseModel):
@@ -26,14 +26,11 @@ class Configuration(BaseModel):
     log_level: str = "info"
 
 
-
 class ModuleConfig(BaseModel):
     active: bool = True
     config: Configuration = Field(default_factory=Configuration)
     name: str
 
 
-
 class PipelineConfiguration(BaseModel):
     modules: list[ModuleConfig]
-

@@ -27,7 +27,7 @@ modules:
   active: True
   config:
     connection_config:
-      message_size: 0.05 # 1.0 means 100% of data -> 0.5 is 50% etc. relevant only for kafka
+      message_size: 0.02 # 1.0 means 100% of data -> 0.5 is 50% etc. relevant only for kafka
       localhost: False
       compose: True
       use_kafka: True

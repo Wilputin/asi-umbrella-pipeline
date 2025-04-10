@@ -7,6 +7,7 @@ from pipeline.dependencies.base_app.base_app import BaseApp
 from pipeline.dependencies.driver.db_driver import DbDriver
 from pipeline.dependencies.models import meta_models
 
+
 class MetaData(BaseModel):
     model_config = ConfigDict(arbitrary_types_allowed=True)
     values: pd.DataFrame | None = None
@@ -103,7 +104,7 @@ class MetaIngestion(BaseApp):
         for config in self.meta_config:
             metadata = MetaData()
             filepath = self.metadata_source / f"{config.table}{file_type}"
-            self.logger.info(f"ingesting meta from source: {filepath}" )
+            self.logger.info(f"ingesting meta from source: {filepath}")
             delimiter = self.get_delimiter_by_table(config.table)
             headers = self.get_headers_by_table(config.table)
             headers = "infer" if headers else None
