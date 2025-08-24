@@ -4,6 +4,7 @@ data_analytics/data/nari_dynamic_sar.csv
 data_analytics/data/nari_dynamic.csv
 data_analytics/data/nari_static.csv
 
+query_results/
 
 pipeline/data/dynamic_aton.csv
 pipeline/data/dynamic_sar.csv

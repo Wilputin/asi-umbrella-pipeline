@@ -22,6 +22,12 @@ docker compose -f "./pipeline/docker-compose.yaml" build
     docker compose -f "./pipeline/docker-compose.yaml" up -d
 }
 
+function start_api_service(){
+  echo "spinning up api service..."
+  docker compose -f "./api-service/docker-compose.yaml" build
+  docker compose -f "./api-service/docker-compose-yaml" up -d
+}
+
 function wait_with_progress(){
   echo -n "Waiting 20 seconds for services to start: ["
   for i in {1..20}; do
