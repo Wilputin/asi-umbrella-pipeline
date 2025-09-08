@@ -1,5 +1,6 @@
 import logging
 import sys
+import time
 import traceback
 from abc import abstractmethod
 from uuid import uuid4
@@ -17,6 +18,12 @@ COLOR_CODES = {
     "RESET": "\033[0m",  # Reset to default
 }
 
+APPLICATION_COLOR_CODES = {
+    "meta_ingestion": "\033[95m",  # Magenta
+    "data_puller": "\033[94m",     # Blue
+    "data_writer": "\033[91m",     # Green
+}
+
 log_format = "[pod:%(name)s]-[time:%(asctime)s]-[level:%(levelname)s]//:%(message)s"
 date_format = "%Y-%m-%d %H:%M:%S"
 
@@ -26,19 +33,24 @@ class ColoredFormatter(logging.Formatter):
         log_color = COLOR_CODES.get(record.levelname, COLOR_CODES["RESET"])
         reset = COLOR_CODES["RESET"]
         record.levelname = f"{log_color}{record.levelname}{reset}"
+        log_color = APPLICATION_COLOR_CODES.get(record.name, COLOR_CODES["RESET"])
+        record.name = f"{log_color}{record.name}{reset}"
         return super().format(record)
 
 
 class BaseApp:
     logger: logging.Logger
     running: bool = False
+    live: bool = False
+    exit_after: int = 10
     connection_config: ConnectionConfig
     meta_config: list[MetaConfig] | None
+    produced_data: int = 0
 
     def __init__(self, logger: logging.Logger, config: Configuration):
         std_handler = logging.StreamHandler(sys.stdout)
         std_handler.setLevel(level=logging.DEBUG)
-
+        logger.info("package started with record name %s", logger.name)
         formatter = ColoredFormatter(log_format, date_format)
         std_handler.setFormatter(formatter)
         logger.addHandler(std_handler)
@@ -48,6 +60,10 @@ class BaseApp:
         self.logger.info(f"starting pod: {logger.name}")
         self.logger.info(f" your connection configuration is {config.model_dump()}")
 
+
+    @abstractmethod
+    async def run_live_app(self):
+        raise NotImplementedError
     @abstractmethod
     async def run(self):
         raise NotImplementedError
@@ -58,7 +74,21 @@ class BaseApp:
 
     async def main(self):
         await self.on_init()
-        await self.run()
+        if self.live:
+            start_time = time.perf_counter()
+            self.logger.info("starting the live app simulation...")
+            elapsed_time = 0
+            self.running = True
+            while self.exit_after > elapsed_time and self.running:
+                await self.run_live_app()
+                elapsed_time = time.perf_counter() - start_time
+                if elapsed_time > self.exit_after:
+                    self.running = False
+            self.logger.info("application produced %d mB amount of data in %d seconds", self.produced_data,elapsed_time)
+            self.logger.info("Troughput is approx %d : mB/s",(round(self.produced_data / elapsed_time)))
+
+        else:
+            await self.run()
         package_name = self.logger.name
         self.logger.info(f"pod: {package_name} finished succesfully...")
 

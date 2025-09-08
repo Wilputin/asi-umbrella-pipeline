@@ -10,7 +10,7 @@ include = ["pipeline/py.typed"]
 pipeline = "pipeline.__main__:main"
 
 [tool.poetry.dependencies]
-python = ">=3.11,<3.12"
+python = ">=3.11,<3.14"
 # Core dependencies
 pydantic = "^2.5"
 pandas = "^2.2"

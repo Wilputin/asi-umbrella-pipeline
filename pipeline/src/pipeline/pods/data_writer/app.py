@@ -38,7 +38,7 @@ class DataWriter(BaseApp):
                 logger=self.logger, connection_config=self.connection_config
             )
         )
-        self.message_map = get_message_type_map()
+        self.message_map = MessageTypeMap()
         self.message_queues = {
             key: asyncio.Queue() for key in self.message_map.get_message_keys()
         }
@@ -49,8 +49,8 @@ class DataWriter(BaseApp):
             )
         self.loop = asyncio.get_running_loop()
         self.tpe = concurrent.futures.ThreadPoolExecutor()
-        self.decoder = MessageDecoder(
-            use_kafka=self.connection_config.use_kafka, logger=self.logger
+        self.decoder = MessageDecoder(expect_kafka_message=True,
+            logger=self.logger
         )
 
     async def run(self):

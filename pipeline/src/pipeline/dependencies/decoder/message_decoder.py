@@ -13,15 +13,15 @@ class MessageDecoder:
     use_kafka: bool
     logger: logging.Logger
 
-    def __init__(self, use_kafka: bool, logger: logging.Logger):
-        self.message_map = get_message_type_map()
-        self.use_kafka = use_kafka
+    def __init__(self, expect_kafka_message: bool, logger: logging.Logger):
+        self.message_map = MessageTypeMap()
+        self.expect_kafka_message = expect_kafka_message
         self.logger = logger
 
     async def get_payload_model(
         self, message: Message | dict, use_kafka: bool
     ) -> tuple[typing.Any]:
-        if use_kafka:
+        if self.expect_kafka_message:
             assert isinstance(message, Message)
             message_content = message.value()
         else:
@@ -58,7 +58,7 @@ class MessageDecoder:
                 yield decoded
 
     async def decode_wire_message(self, message: Message | dict) -> Message:
-        if self.use_kafka:
+        if self.expect_kafka_message:
             assert isinstance(message, Message)
             payload = message.value()
             assert isinstance(payload, bytes)
