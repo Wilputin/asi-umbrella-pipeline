@@ -1,11 +1,16 @@
 # AIS Umbrella pipeline
 
 
+Tämä repo demoaa merelle kulkevien laivojen ASI-viestien datan kulkemista
+ETL putken läpi lopulta tietokantaan ja sen saman datan kyselyä querylla apin kautta tietokannasta.
 
-Päätin nyt laittaa dokumentaation suomeksi. Hyvää harjoitusta kun aikamonta vuotta ollut työkieli englantina
+Repon on tarkoitus antaa kosketusrajanpinta mahdolliseen arkkitehtuurin ja ratkaisuihin
+eikä toimi valmiina production ready ratkaisuna.
 
+Tarkoitus on näyttää ymmärrystä dataputkien rakentamista kokonaisvaltaisesti kuin keskittyä
+yhteen palveluun.
 
-# Miten testata
+# Miten ajaaa
 
 projektin juuressa terminaalissa ajamalla ./deployment.sh
 
@@ -43,71 +48,10 @@ kansion juuressa sijaitsee
         data-writer -> eudstaa kanta kirjoitus palvelua joka ottaa datan topicista
         meta-ingestion -> edustaa jobina ajettavaa palvelua metadatan ingestoimiseen kantaan
 
-Äsken mainitetut pipeline podit (mainittiin nimeltä sujuissa) on myös mainittu ehdotuksessa
-lopullisen tuotteen arkkitehtuurista (joka on hieman keskeneräinen). Arkkitehtuuri löytyy 
-
-kansion docs/ sisältä tämän projektin juuresta
-
-
-# Alkusanat
-
-en ole varma menikö tämä projekti nyt yli tai ali. Teinköhän asiat mitä pyydettiin. Toivottavasti tein.
-Innostuin ehkä liikaa yrittää seurata mahdollista "todellista arkkitehtuuria" että olisin voinut tehdä
-tuosta querybuilderista hieman siistimmä/kyvykkäämän. Noh ensi kerralla sitten...
-
-Tarkoituksenani oli aluksi tehdä tämä software engineerin tehtävä. Jota aloitinkin. Tein kansiorakenteet. routerin
-Dockerfilet yms. Sain boilerprate projektin toimimaan kivasti. Mutta 19.3 sain vain ajatuksen että ehkä minun kannattaisi tehdä tämä pipeline projekti ja liittää
-tämä Api applikaatio siihen. Tähtäisin siisteyteen ja maintabilityyn
-koko projektin sisällä. Niin toivottavasti se riittäisi vaikka en pääsisi ihan täydellistä pipelina tekemään.
-
-Vaikka tähtäsin siisteyteen ja maintanibilityyn niin aikaresursointini epäonnistui pahasti niin koodissa on varmasti itsenä
-toistamista ja huonosti sijoitettuja asioita. Lisä ajan kanssa varmasti olisi nätimpi kokonaisuus. 
-Toivottavasti kumminkin pääpiirteittäin saatte selvää asioista :)
-
-Vielä lisäksi; koska yksi tehtävä pointti oli tarjota query mahdolllisuus end userille ja mahdollinen laajennus niin
-sen on tarjottu api-rajapinnan kautta.  ./query_data.sh tiedostossa on esimerkki queryta johon voi curlata.
-json payloadi validoinnaan apin puolella pydantic mallilla ja SQLQueryBuilder (pipeline.dependencies.driver.query_builder.py)
-koostaa siita SQL statementin DbDriverille parametrien kanssa.
-
-Mielestäni arkkitehtuuri ratkaisuna suht siisti ja helposti laajennettava. Tietysti curlaajaan täytyy hieman tietää SQL querien syntaxista
-
-Mutta tässä kaikki tällä kertaa! Katsotaan mitä mieltä olette.
-
-# Miten testata tätä
-
-    ENSIKSI: Koska github tappelee filukokojen kanssa valitettavasti tajusin tämän liian myöhään niin en nyt saanut tähän hienostuneempaa ratkaisua
-    pahoittelut
-    
-    jos katsotte kansiota polussa
-    
-    /pipeline/data/add_files_here.txt
-
-    niin nämä tiedostot tarvitaan sisään että kontit saavat oikeat volyymit prosessoitavaksi
-
-annetaan kuvaus mitkä tiedostot millä nimellä tarvitaan tähän kansioon että pipeline toimii
-
-toivotaan että tästä ei tule "it works on my machine"
-
 1. projektin juuressa syötä terminaaliin
     ./deployment.sh
     - sitä ennen jos haluat testata pienemmällä datamäärällä voit muuttaa sitä
    pipeline/configuration_compose.yaml tiedoston kautta
-   
-
-        #MUUTA messag_size kenttää haluaamaasi suuntaan muuttakseksi kafka topicciehin työnnettämän datan määrää
-        - name: data_puller
-          active: True
-          config:
-            connection_config:
-              message_size: 0.2 # 1.0 means 100% of data -> 0.5 is 50% etc. relevant only for kafka
-              localhost: False
-              compose: True
-              use_kafka: True
-        
-        jokaisessa moduulissa on active: bool kenttä
-        jos myöhemmin kun olet ajanut datan sisään DB:sen ja haluat testata pelkästään query
-        rajapintaa niin aseta moduulit (paitsi asi-api) configuraatiossa -> configuration_compose.yaml falseksi
-        ja pystytä pipelin uudestaan. Näin pelkästään asi-api käynnistyy
 
 2. tämän pitäisi pystyttää järjestyksessä
     - database
@@ -131,7 +75,6 @@ Tämä projekti koostuu seuraavista kansioista
 | kansio/tiedosto | sisältö                                                                                              |
 |-----------------|------------------------------------------------------------------------------------------------------|
 | asi-db          | tietokannan schema.sql ja YAML-tiedosto kontin käynnistämistä varten                                 |
-| data_analytics  | perusanalyysit striimausdatan frekvensseistä                                                         |
 | docs            | ehdotettu arkkitehtuurikaavio lopulliselle tuotteelle ja parametrien kuvaukset striimaus- ja metadatalle |
 | kafka_build     | docker_compose-tiedosto, jolla asennetaan kafka, zookeeper ja akhq sekä altistetaan portit 9092/29092 |
 | pipeline        | putken lähdekoodi. Sisältö selitetään tarkemmin alla                                                |
@@ -236,54 +179,5 @@ Mitä se tekee:
 # Pods.Data_puller
 Tämä repo on nopea asennus tarjotun datan sisäänlukemiseen
 data/-kansiosta Kafka-topiceihin. 
-
-
-Mitä se tekee:
-
-    1. CSV-tiedostot liitetään konttiin volyymin kautta
-    2. Kafka-topicit luodaan CSV-tiedostojen nimien perusteella
-    3. CSV:t muunnetaan dataframeiksi. Niiden viestityyppi liitetään mukaan payloadiin
-    4. MMSI:n perusteella haetaan maan tunnus ja lisätään payloadiin
-    5. Käännetään nan arvot noneiksi
-    5. Dataframe muunnetaan JSON-muotoon ja lähetetään Kafkaan asynkronisina tehtävinä
-    6. Jos use_kafka flagi = False niin data tallennetaan src/kafka_data/topic_nimi.json tiedostopolkuun 
-
-Laajentaminen:
-
-pääasiallinen prosessointi tapahtuu tässä funktiossa. Toiminallisuuksien lisääminen 
-tähän lisää prosseointia:
-
-        async def processing_pipeline(self, data: str) -> pd.DataFrame:
-        filepath = self.data_source / f"{data}.csv"
-        df = pd.read_csv(filepath)
-        if "ts" in df.columns:
-            df.rename(columns={"ts": "t"}, inplace=True)
-        df.sort_values(by="t", inplace=True, ascending=True)
-        processed_df = self.divide_mmsi_and_country_code(df)
-        message_type = self.message_map.get_message_key_by_table(data)
-        processed_df["message_type"] = [message_type for _ in range(len(processed_df))]
-        processed_df.reset_index(inplace=True, drop=True)
-        return processed_df
-
- 
-# Kohti valmista tuotetta
-
-
-Olen hieman biased teknologia valinnoissani sillä näillä nyt olen työskennellyt.
-
-Konttien orkestrointi → Kubernetes
-Docker → konttien luomiseen ja ajamiseen (konttienhallinta, ei orkestrointi)
-Kubernetes → konttien orkestrointiin ja käyttöönottoon (deployment)
-
-src code kielet
-Pipeline konttien valittu src kieli voisi olla Forecastingia ja anomaly detectionia tekevissä podeissa
-Python. Mielestäni paras kieli tälläiseen työhön.
-Muussa tapauksessa voitaisiin harkita Java/Scala kieliä jotka pelaavat vahvasti Kafkan kanssa
-
-Muut palvelut:
-    Tech stackeissänne mainittiin Spark. Mutta kokisin ettää perustuen data_analytics/
-    tuloksiin data määrän olevan turhan pieni että olisi oikeutettu käyttämään Sparkkia. Voin olla
-    toki väärässä datamäärä olettamastani. jos olen tehnyt kohtalokkaan virhen koodissani.
-    Muussa tapauksessa mielestäni pärjäisi hyvin omalla kafka työkaluilla
 
 
