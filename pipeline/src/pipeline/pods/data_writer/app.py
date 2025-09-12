@@ -52,17 +52,12 @@ class DataWriter(BaseApp):
         self.decoder = MessageDecoder(expect_kafka_message=True,
             logger=self.logger
         )
-
     async def run(self):
         tasks = []
-
         for message_mapping in self.message_map.types:
             message_table = message_mapping.table
             message_key = message_mapping.message_type
-            if self.connection_config.use_kafka:
-                gathering_task = self.gather_data_from_topic(topic=message_table)
-            else:
-                gathering_task = self.gather_data_from_folder(topic=message_table)
+            gathering_task = self.gather_data_from_topic(topic=message_table)
             db_task = self.db_write_loop(message_key)
             tasks.append(asyncio.create_task(gathering_task))
             tasks.append(asyncio.create_task(db_task))

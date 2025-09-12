@@ -3,6 +3,13 @@
 
 
 Päätin nyt laittaa dokumentaation suomeksi. Hyvää harjoitusta kun aikamonta vuotta ollut työkieli englantina
+
+
+# Miten testata
+
+projektin juuressa terminaalissa ajamalla ./deployment.sh
+
+
 # Mitä tämä projekti tekee
 
 ./deployment.sh ajamalla 
@@ -17,6 +24,24 @@ putkessa myöhemmin
     - avaa portin API kutsuja varten localhost:5000 rajapinnassa (asi-api)
 
 tämän jälkeen käyttäjä voi testata eri queryja ajamalla ./query_data.sh
+
+pipeline/src/pipeline sisällä sijaitseva arkkitehtuuri selitettynä.
+
+kansion juuressa sijaitsee 
+    dependencies
+        edustaa erilaisia kirjastoja jotka sijaitsevat imagena palvelun ulkopuolella
+        base-app. Edustaa ETL putken palveluiden yhtenäistä applikaatio arkkitehtuuria
+            tarjoaa esim yhtenäisen loggerin ja applikaatio ajo rakenteen
+        data_process -> tarjoaisi mahdollisia yhteisiä staattisia funktioita datan processoiintiin
+        decoder -> yhtenäinen logiikka kafka viestien purkamiseen
+        driver - > database driver kannan kansssa keskusteluun
+        models -> etl putkessa kulkevien dataputkein mallien hallinta
+    pods
+        edustaa erillisiä applikaatio podeja 
+        asi-api -> api service UI:n ja kannan kanssa keskusteluun
+        data-puller -> palvelu jonka tarkoituksena on ottaa dataa ulkoisesta lähteestä ja syöttää se sisäiseen ETL putkeen
+        data-writer -> eudstaa kanta kirjoitus palvelua joka ottaa datan topicista
+        meta-ingestion -> edustaa jobina ajettavaa palvelua metadatan ingestoimiseen kantaan
 
 Äsken mainitetut pipeline podit (mainittiin nimeltä sujuissa) on myös mainittu ehdotuksessa
 lopullisen tuotteen arkkitehtuurista (joka on hieman keskeneräinen). Arkkitehtuuri löytyy 

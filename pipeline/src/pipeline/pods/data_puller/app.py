@@ -57,7 +57,6 @@ class DataPuller(BaseApp):
             self.data_sample_size[message_table] = size_mb
 
     async def run_live_app(self):
-        tasks = list()
         for message_table, df in self.data_samples.items():
             await self.produce_df_to_topic(df=df, data=message_table)
             self.produced_data += self.data_sample_size[message_table]
