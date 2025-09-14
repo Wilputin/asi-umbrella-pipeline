@@ -12,7 +12,7 @@ echo "building kafka service"
 docker compose -f "./kafka_build/docker-compose.yaml" build --no-cache
 docker compose -f "./kafka_build/docker-compose.yaml" up -d
 
-echo -e "AKHQ UI will be available on \e]8;;http://localhost:8080\ahttp://localhost:8080\e]8;;\a"
+echo -e "AKHQ UI will be available on \e]8;;http://localhost:8080;\a"
 
 }
 
@@ -37,10 +37,26 @@ function wait_with_progress(){
   echo "] Done."
 }
 
+function compose_services(){
+  compose_db
+  compose_kafka
+}
 
+function main() {
+  if [[ "$1" == "--function" && -n "$2" ]]; then
+    FUNC_NAME="$2"
+    if declare -F "$FUNC_NAME" > /dev/null; then
+      shift 2
+      "$FUNC_NAME" "$@"
+    else
+      echo "❌ Function '$FUNC_NAME' not found."
+      show_help
+    fi
+  else
+    show_help
+  fi
+}
 
-compose_db
-compose_kafka
-wait_with_progress
-start_pipeline
+main "$@"
+
 
