@@ -35,6 +35,7 @@ class DataPuller(BaseApp):
     data_size_protection: int = 1000
     data_samples: dict[str, pd.DataFrame] #small datasample to keep in state that we regenerate constantly
     produced_data: float = 0.0
+    target_produce_date: float | None = None
 
     async def on_init(self) -> None:
         self.live = True

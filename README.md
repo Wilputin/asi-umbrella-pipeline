@@ -1,183 +1,133 @@
 # AIS Umbrella pipeline
 
 
-Tämä repo demoaa merelle kulkevien laivojen ASI-viestien datan kulkemista
-ETL putken läpi lopulta tietokantaan ja sen saman datan kyselyä querylla apin kautta tietokannasta.
+This repository demonstrates an end-to-end data pipeline for processing AIS (Automatic Identification System) messages from ships at sea. The pipeline moves streaming and metadata through an ETL (Extract-Transform-Load) process into a database, enabling users to query the data via an API.
+Note: This is a demo project, not a production-ready system. The purpose is to showcase architectural thinking and the construction of full pipelines, rather than focusing on individual services.
 
-Repon on tarkoitus antaa kosketusrajanpinta mahdolliseen arkkitehtuurin ja ratkaisuihin
-eikä toimi valmiina production ready ratkaisuna.
+# How to Run the Project
 
-Tarkoitus on näyttää ymmärrystä dataputkien rakentamista kokonaisvaltaisesti kuin keskittyä
-yhteen palveluun.
+To start all services:
 
-# Miten ajaaa
-
-projektin juuressa terminaalissa ajamalla ./deployment.sh
+./deployment.sh --function start_all_services
+You can also test the querying functionality after the pipeline is running:
 
 
-# Mitä tämä projekti tekee
+# What the Pipeline Does
 
-./deployment.sh ajamalla 
-1. pystytetään asi-db joka hoitaa scheman luonnin annetun metadatan mukaan sekä luo taulut streamaus datalle joka odotetaan tulevan
-putkessa myöhemmin
-2. sen jälkeen pystytetään kafka/zookeeper/akhq kontit topiccien luontiin ja datan streamaukseen
-3. Kaikki kontit keskustelevat keskenäänin asi_network sisällä
-4. sen jälkeen pipeline pyöräytetään pystyyn joka; 
-    - ingestoi metadatat db:n jonka jälkeen (meta_ingestion)
-    - prosessoi streamausdatan topicceihin (data_puller)
-    - hakee datan topiceista ja kirjoittaa ne tauluihin (data_writer)
-    - avaa portin API kutsuja varten localhost:5000 rajapinnassa (asi-api)
+Running ./deployment.sh will:
+1. Set up the asi-db database container
+    * Initializes schema based on provided metadata
+    * Creates tables for both metadata and streaming data
+2. Deploy Kafka, Zookeeper, and AKHQ containers
+    * Used for managing and inspecting Kafka topics
+3. Connect all containers via a custom Docker network (asi_network)
+4. Start the pipeline, which includes:
+    * meta_ingestion: Loads metadata into the database
+    * data_puller: Streams AIS data into Kafka topics
+    * data_writer: Consumes Kafka data and writes to the database
+    * asi-api: Exposes a REST API at localhost:5000 for querying the data
+5. Inspect Kafka topics via AKHQ at: http://localhost:8080
 
-tämän jälkeen käyttäjä voi testata eri queryja ajamalla ./query_data.sh
+# Project structure
 
-pipeline/src/pipeline sisällä sijaitseva arkkitehtuuri selitettynä.
+### 🗂️ Root Directory Structure
 
-kansion juuressa sijaitsee 
-    dependencies
-        edustaa erilaisia kirjastoja jotka sijaitsevat imagena palvelun ulkopuolella
-        base-app. Edustaa ETL putken palveluiden yhtenäistä applikaatio arkkitehtuuria
-            tarjoaa esim yhtenäisen loggerin ja applikaatio ajo rakenteen
-        data_process -> tarjoaisi mahdollisia yhteisiä staattisia funktioita datan processoiintiin
-        decoder -> yhtenäinen logiikka kafka viestien purkamiseen
-        driver - > database driver kannan kansssa keskusteluun
-        models -> etl putkessa kulkevien dataputkein mallien hallinta
-    pods
-        edustaa erillisiä applikaatio podeja 
-        asi-api -> api service UI:n ja kannan kanssa keskusteluun
-        data-puller -> palvelu jonka tarkoituksena on ottaa dataa ulkoisesta lähteestä ja syöttää se sisäiseen ETL putkeen
-        data-writer -> eudstaa kanta kirjoitus palvelua joka ottaa datan topicista
-        meta-ingestion -> edustaa jobina ajettavaa palvelua metadatan ingestoimiseen kantaan
+| File/Folder       | Description                                                                                     |
+|-------------------|-------------------------------------------------------------------------------------------------|
+| `asi-db`          | Database schema (`schema.sql`) and container definition (`.yaml`)                              |
+| `docs`            | Architecture diagrams and parameter documentation for metadata and streaming                   |
+| `kafka_build`     | Docker Compose config for Kafka, Zookeeper, AKHQ (exposed ports: 9092/29092)                   |
+| `pipeline`        | Pipeline source code (detailed in a separate section below)                                    |
+| `deployment.sh`   | Script to deploy the full stack                                                                |
+| `query_data.sh`   | Script to query the API and test data retrieval                                                |
 
-1. projektin juuressa syötä terminaaliin
-    ./deployment.sh
-    - sitä ennen jos haluat testata pienemmällä datamäärällä voit muuttaa sitä
-   pipeline/configuration_compose.yaml tiedoston kautta
 
-2. tämän pitäisi pystyttää järjestyksessä
-    - database
-    - kafka/zookeeper/akhq
-    - pipeline
-3. Akhq on exposattu localhostille portille 8080. Pääset katsomaan topicceja silloin osoitteesta
-    - "http://localhost:8080"
-   
-3. Pipeline ajetaan singleshot moduliina paitsi. asi-api palvelu
-muiden moduulien ajamisen jälkeen asi-api jää pyörimään. asi-api on exposattu localhostille portille 5000 
-ja voit curlata siihen kun data on ingestattu 
+# Pipeline architecture 
 
-4. projektin juuressa syöttämällä
+The pipeline is built as a monorepo for development convenience. In production, each service should ideally be its own Docker image.
+
+
+### 🗂️ `pipeline/` Directory Structure
+
+| File/Folder                | Description                                                                                             |
+|----------------------------|---------------------------------------------------------------------------------------------------------|
+| `data/`                    | Streaming data pushed into Kafka and later written into the database                                    |
+| `metadata/`                | Metadata ingested into the database via the `meta_ingestion` service                                    |
+| `src/`                     | Source code for the ETL pipeline                                                                        |
+| `tests/`                   | Local test script (assumes the database is running with ingested data)                                 |
+| `configuration.yaml`       | Local development configuration: toggles modules and localhost vs Docker network                        |
+| `configuration_compose.yaml` | Compose-specific configuration injected into the container as a volume                                |
+| `docker-compose.yaml`      | Docker Compose file for the pipeline services                                                           |
+| `Dockerfile`               | Multi-stage Dockerfile for building pipeline image with minimal size                                    |
+| `lint.sh`                  | Lint script using Poetry                                                                                 |
+
+
+1. src/pipeline/dependencies/
+
+These are shared modules uded across the pipeline services
+
+### 🧩 Pipeline Dependencies
+
+| Module             | Description                                                                                              |
+|--------------------|----------------------------------------------------------------------------------------------------------|
+| `base_app`         | Provides shared application logic, such as a base runner and a common logger used across all pipeline pods |
+| `decoder`          | Contains logic for decoding Kafka messages and mapping message types to models and database tables        |
+| `driver`           | Database interaction layer with async connection pooling and SQL query building/validation utilities       |
+| `models`           | Centralized Pydantic models used for validating both metadata and streaming data                          |
+| `data_process`     | (Optional) Utility functions that support data transformation and processing                              |
+                                 |
+
+2. src/pipeline/pods/
+
+these are individual pipeline services ("pods") that could become separate microservices
+
+### 📦 Pipeline Pods
+
+| Pod Name        | Description                                                                                  |
+|-----------------|----------------------------------------------------------------------------------------------|
+| `meta_ingestion`| Loads metadata from CSV files into the database using Pydantic validation                    |
+| `data_puller`   | Reads data from local files and streams it to Kafka topics                                   |
+| `data_writer`   | Consumes Kafka messages and writes them to the corresponding DB tables                       |
+| `asi_api`       | REST API that exposes the query interface on [localhost:5000](http://localhost:5000)         |
+
+ 
+# Dependencies Breakdown
+Dependencies.base_app
+* Unified application structure used by all pods
+* Includes:
+    * A common logger
+    * A base runner for services
+Dependencies.decoder
+* Standardized decoding of Kafka messages across all pods
+* Maps message types (e.g., vessel, voyage, sar) to:
+    * Corresponding Pydantic model
+    * Target database table
+Note: The message-to-table mapping logic could ideally reside inside data_writer
+Dependencies.driver
+* Core DB interaction layer:
+    * insert_meta_data()
+    * insert_streaming_data()
+    * query_data()
+* Includes:
+    * Async connection pooling
+    * Query builder with validation
+    * Table metadata information
+Dependencies.models
+* Centralized data validation using Pydantic
+* Divided into:
+    * meta_models.py: For static metadata
+    * wire_models.py: For dynamic/streaming data
+
+Example Use Case
+After starting all services:
+1. Access AKHQ to inspect Kafka topics: → http://localhost:8080
+2. Call the API on localhost:5000 using curl or the provided query_data.sh:
+
 ./query_data.sh
+1. Try modifying the queries — or break things! The system is made to be explored and stress-tested.
 
-5. Voit muutta haluamasi parametreja curlauksessa. Koita rikkoa se. Onnistut varmasti.
-
-
-Tämä projekti koostuu seuraavista kansioista
-
-| kansio/tiedosto | sisältö                                                                                              |
-|-----------------|------------------------------------------------------------------------------------------------------|
-| asi-db          | tietokannan schema.sql ja YAML-tiedosto kontin käynnistämistä varten                                 |
-| docs            | ehdotettu arkkitehtuurikaavio lopulliselle tuotteelle ja parametrien kuvaukset striimaus- ja metadatalle |
-| kafka_build     | docker_compose-tiedosto, jolla asennetaan kafka, zookeeper ja akhq sekä altistetaan portit 9092/29092 |
-| pipeline        | putken lähdekoodi. Sisältö selitetään tarkemmin alla                                                |
-| deployment.sh   | funktiot verkon/tietokannan asettamiseen ja putken suorittamiseen datan sisäänlukua varten          |
-| query_data      | funktio datan hakemiseen curlilla asi-api-palvelusta (putken ajamisen jälkeen)                      |
-
-# pipeline
-
-kuvailen alla olevassa taulukossa hieman pipeline/ juuren kansiorakennetta
-
-| kansio/tiedosto            | sisältö                                                                                                                                                      |
-|----------------------------|--------------------------------------------------------------------------------------------------------------------------------------------------------------|
-| data                       | streamaava data, joka pusketaan pipelinen alussa kafka topicciin ja syötetään lopussa DB:sen                                                                 |
-| metadata                   | metadata, joka syötetään DB:en pipelinen alussa (meta-ingestion hoitaa)                                                                                      |
-| src                        | pipelinen source koodi                                                                                                                                       |
-| tests                      | sisältää yhden huikean testin queryn toteuttamiseen lokaalisti. Ei ajeta image buildissa. Olettaa että DB on pystyssä ja dataa on sisällä                    |
-| configuration.yaml         | testaus konfiguraatio lokaaliin ajoon. Asettaa mitkä moduulit ovat aktiivisia ja käytätkö yhteyksissä localhost vai compose networkkia                       |
-| configuration_compose.yaml | pipeline kontin pystytyksessä annetaan volumiina kontille nimellä -> configuration.yaml (sisältää saman periaatteen kuin juuressa oleva saman niminen .yaml) |
-| docker-compose.yaml        | docker-compose                                                                                                                                               |
-| Dockerfile                 | hoitaa imagen luonnin multi-stage buildina. Käytin tätä periaatetta kun ensimmäistä API-applikaatiota tein imagen koon minimoimiseen                         |
-| lint.sh                    | ajaa linttaus moduulit poetryn kautta. Olettaa että olet ajanut jo lokaalisti poetry lock + poetry install                                                   |
-
-tämä pipeline on rakennettu monoliitti kansiona devauksen helpottamiseksi mutta todellinen ratkaisu
-tuskin sellainen olisi vaan jokainen moduuli/podi olisi oma imagensa
-
-sitä yritin hakea src/ kansion alla olevasta kansiorakenteesta joka pitäisi kuvastaa hieman tätä ajatusta
-
-src/pipeline/pods kansion alla pitäisi löytyä kaikki palvelut jotka ajattelin olla omia podejaan
-
-src/pipeline/dependencies kansion alla pitäisi löytyä kaikki moduulit jotka ajattelin olla riippuvuksia jo
-määrityille podeille
-
-
-# Dependencies
-Ajattelin tässä että kaikki dependencien sisällä ovat ulkoisia imageja ja podin riippuvat niiden tuomista malleista/rajapinnoista
-esimerkiksi näin DbDriver olisi saatavilla keskitetysti monelle eri podille (asi-api + meta_ingestion esimerkiksi)
-
-# Dependencies.base_app
-
-Sisältää perusappi logikaan ja abstraktoidut kutsut jota kaikki pipelinen podit käyttävät
-jos ETL pipeline tehdään olisi mielestäni loogista että kaikki toimivat aika samalla tavalla
-vaikka nyt minun esimerkkini ei ole hirveän sivistynyt kaipa siitä perusidean saa haltuun
-
-perusappi myös sisältäisi yhteisen loggerin. Eli devaaja ei siitä tarvitsisi miettiä vaan loggeri olisi
-valmiiksi jo saatavilla
-
-# Dependencies.decoder
-
-Ajattelin että messge_decoder
-olisi hyvä olla dependencynä kaikille ETL putken podeille ja ne decodaisivat ja handlaisivat kafka messageja samalla tavalla
-
-Seuraavana on message_map joka mappaa viestityypin (onko se aton, sar,voyage, vessel etc) oikeaan
-datamalliin (validointia varten) ja oikeaan DB taulun inserttiä varten.
-Tämä itseasiassa pitäisi olla mielestäni data_writer podin sisällä
-
-# Dependencies.driver
-
-varmaan tärkein dependency ainakin tehtävän annon perusteella
-db_driver.py:
-
-    Sisältää driverin joka init vaiheessa ottaa Asyncconnectionpoolin itseensä ja pyyntöjen
-    tullessa ottavat kutsut vapaista olevista connectioneista itselleen käyttöön ja käyttävät
-    niitä statementtien toteuttamiseen
-
-    sisältää kolme päämethodia
-
-    async def insert_meta_data()
-    async def insert_streaming_data()
-    async def query_data()
-
-query_builder.py:
-
-    Sisältää SQL statementtien rakennus logiikan. Mahdollistaa helpon query rakennuksen ja mahdollisuuden
-    helpon rajapinnan tarjoamiseen api-palvuille querien käyttöön
-
-    sisältää query validoinnin ennen toteuttamista
-table_info.py:
-
-       Sisältää taulujen metatieto infoa query builderia varten. Sekä sisältää suoria insert 
-        komentoja db_writerin kirjoittamis funktioita varten
-# Dependencies.models
-
-Tämä kansio sisältää pipelinen yleisesti käytössä olevat data mallit ja niiden keskitetyn Pydantic mallien validointi logiikan
-jos kaikki ei ole järkevästi keskitetty Pydantic mallien validaatioon niin vakuutan että se oli tarkoitus
-
-meta_models.py
-
-        sisältää meta taulujen datamallit ja niiden validoinnin ennen insertoimista
-wire_models.py
-        
-        sisältää streaming/dynamic taulujen datamallit ja niiden validoinnin ennen insertoimista
-# Pods.Meta_ingestion
-Tämä repo on nopea asennus tarjotun meta datan sisäänlukemiseen
-ja kirjoittamiseen DB:hen
-
-Mitä se tekee:
-
-    1. CSV-tiedostot liitetään konttiin volyymin kautta
-    3. CSV:t muunnetaan dataframeiksi.
-    4. Dataframen rivit validoidaan pydantic mallien kautta ennen insertoimista DB:hen
-
-# Pods.Data_puller
-Tämä repo on nopea asennus tarjotun datan sisäänlukemiseen
-data/-kansiosta Kafka-topiceihin. 
+🏁 Final Notes
+* This demo is structured to provide a complete view of an ETL pipeline architecture using Docker, Kafka, PostgreSQL, and FastAPI.
+* It is intentionally structured as a monolith for development simplicity, but real-world deployments should separate pods into independent services/images.
 
 

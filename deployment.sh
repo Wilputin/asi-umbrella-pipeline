@@ -41,7 +41,12 @@ function compose_services(){
   compose_db
   compose_kafka
 }
+function start_all_services(){
+  compose_services
+  wait_with_progress
+  start_pipeline
 
+}
 function main() {
   if [[ "$1" == "--function" && -n "$2" ]]; then
     FUNC_NAME="$2"
@@ -56,6 +61,7 @@ function main() {
     show_help
   fi
 }
+
 
 main "$@"
 
