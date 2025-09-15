@@ -91,34 +91,57 @@ these are individual pipeline services ("pods") that could become separate micro
 | `asi_api`       | REST API that exposes the query interface on [localhost:5000](http://localhost:5000)         |
 
  
-# Dependencies Breakdown
-Dependencies.base_app
-* Unified application structure used by all pods
-* Includes:
-    * A common logger
-    * A base runner for services
-Dependencies.decoder
-* Standardized decoding of Kafka messages across all pods
-* Maps message types (e.g., vessel, voyage, sar) to:
-    * Corresponding Pydantic model
-    * Target database table
-Note: The message-to-table mapping logic could ideally reside inside data_writer
-Dependencies.driver
-* Core DB interaction layer:
-    * insert_meta_data()
-    * insert_streaming_data()
-    * query_data()
-* Includes:
-    * Async connection pooling
-    * Query builder with validation
-    * Table metadata information
-Dependencies.models
-* Centralized data validation using Pydantic
-* Divided into:
-    * meta_models.py: For static metadata
-    * wire_models.py: For dynamic/streaming data
+## 🔌 Dependencies Breakdown
 
-Example Use Case
+The `src/pipeline/dependencies/` directory contains shared modules used across the ETL pipeline services.
+
+---
+
+### 📦 `base_app`
+
+- Unified application structure used by all pods  
+- Includes:
+  - A common logger  
+  - A base runner for executing services
+
+---
+
+### 📦 `decoder`
+
+- Standardized decoding of Kafka messages across all pods  
+- Maps message types (e.g., `vessel`, `voyage`, `sar`) to:
+  - Corresponding Pydantic model  
+  - Target database table
+
+> **Note:** The message-to-table mapping logic could ideally be moved into the `data_writer` pod for better cohesion.
+
+---
+
+### 📦 `driver`
+
+- Core database interaction layer  
+- Key methods:
+  - `insert_meta_data()`
+  - `insert_streaming_data()`
+  - `query_data()`
+- Includes:
+  - Async connection pooling
+  - Query builder with validation
+  - Table metadata information for dynamic SQL generation
+
+---
+
+### 📦 `models`
+
+- Centralized data validation using Pydantic models  
+- Divided into:
+  - `meta_models.py`: For static metadata (used by `meta_ingestion`)  
+  - `wire_models.py`: For dynamic/streaming data (used by `data_writer`, etc.)
+
+---
+
+
+# Example Use Case
 After starting all services:
 1. Access AKHQ to inspect Kafka topics: → http://localhost:8080
 2. Call the API on localhost:5000 using curl or the provided query_data.sh:
@@ -126,7 +149,7 @@ After starting all services:
 ./query_data.sh
 1. Try modifying the queries — or break things! The system is made to be explored and stress-tested.
 
-🏁 Final Notes
+ # 🏁Final Notes
 * This demo is structured to provide a complete view of an ETL pipeline architecture using Docker, Kafka, PostgreSQL, and FastAPI.
 * It is intentionally structured as a monolith for development simplicity, but real-world deployments should separate pods into independent services/images.
 
