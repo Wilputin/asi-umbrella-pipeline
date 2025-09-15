@@ -9,7 +9,7 @@ services:
     networks:
       - asi_network
     ports:
-      - 5000:5000 #exposes the API to localhost
+      - 8500:8500 #exposes the API to localhost
 networks:
   asi_network:
     external: true
